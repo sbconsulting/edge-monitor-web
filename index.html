@@ -1,6 +1,7 @@
 <html>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="webui.js"></script>
+<link rel="stylesheet" href="webui.css">
 <head><title>Edge Monitoring Device</title></head>
 <body>
 
@@ -12,23 +13,33 @@
         <button class="tablinks" id="nav-traceroute">Traceroute</button>
         <button class="tablinks" id="nav-dig">Dig</button>
 </div>
-<hr>
+
+<br>
 
 <div id="tab-ping" class="tabcontent">
-Ping <input type="text" id="address" name="address" value="1.1.1.1">
-<button id="start">start</button>
-<button id="stop">stop</button>
-<br><br>
-<textarea id="result" name="result" rows="10" cols="80">
-</textarea>
+        Address <input type="text" id="ping-address" name="ping-address" value="1.1.1.1">
+        <button id="ping-start">start</button>
+        <button id="ping-stop">stop</button>
+        <br><br>
+        <textarea id="ping-result" name="result" rows="20" cols="80">
+        </textarea>
 </div>
 
 <div id="tab-traceroute" class="tabcontent">
-    Traceroute
+        Address <input type="text" id="trace-address" name="trace-address" value="1.1.1.1">
+        <button id="trace-start">trace</button>
+        <br><br>
+        <textarea id="trace-result" name="result" rows="20" cols="80">
+        </textarea>
 </div>
 
 <div id="tab-dig" class="tabcontent">
-        Dig
+        Address <input type="text" id="dig-hostname" name="dig-hostname" value="www.google.com">
+        DNS Server <input type="text" id="dig-dnsserver" name="dig-dnsserver" value="1.1.1.1">
+        <button id="dig-start">Lookup</button>
+        <br><br>
+        <textarea id="dig-result" name="result" rows="20" cols="80">
+        </textarea>
 </div>
 
 </body>

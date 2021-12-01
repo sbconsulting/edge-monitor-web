@@ -18,6 +18,10 @@ def index():
 def webui_js():
     return static_file("webui.js", root=".")
 
+@route("/webui.css")
+def webui_css():
+    return static_file("webui.css", root=".")
+
 @route("/ping")
 def ping():
     ip = request.query.ip or "127.0.0.1"
@@ -39,6 +43,41 @@ def ping():
 
     # It was a successful response, but without a "bytes from" line. Should not happen.
     return {"stdout": stdout, "stderr": stderr, "returncode": -1}
+
+
+@route("/trace")
+def trace():
+    ip = request.query.ip or "127.0.0.1"
+    if not validateHostName(ip):
+        return {"stdout": "", "stderr": "invalid hostname or ip_address", "returncode": -2}
+
+    tr = subprocess.Popen(["traceroute", ip],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdout, stderr = tr.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": tr.returncode}
+
+
+@route("/dig")
+def dig():
+    hostname = request.query.hostname or "www.google.com"
+    dnsServer = request.query.dnsserver or None
+
+    if not validateHostName(hostname):
+        return {"stdout": "", "stderr": "invalid hostname", "returncode": -2}
+
+    if (dnsServer is not None) and (not validateHostName(dnsServer)):
+        return {"stdout": "", "stderr": "invalid dns server", "returncode": -2}        
+
+    args = ["dig", hostname]
+    if (dnsServer):
+        args.append("@"+dnsServer)
+
+    dig = subprocess.Popen(args,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    stdout, stderr = dig.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": dig.returncode}
 
 
 run(host='0.0.0.0', port=8087, debug=True)

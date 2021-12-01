@@ -1,34 +1,32 @@
 function webui() {
-    onStart = function() {
-        console.log("onStart");
+    onPingStart = function() {
         if (!webui.runPing) {
             webui.runPing = true;
-            setTimeout(webui.sendPing, 1000);
+            setTimeout(webui.sendPing, 0);
         }
     }
 
-    onStop = function() {
-        console.log("onStop");
+    onPingStop = function() {
         webui.runPing = false;
     }
 
     parsePingResult = function(result) {
-        $('#result').append(webui.pingCount);
-        $('#result').append(": ");
+        $('#ping-result').append(webui.pingCount);
+        $('#ping-result').append(": ");
         if (result.returncode==0) {
-            $('#result').append(result.result);
-            $('#result').append("\n");
+            $('#ping-result').append(result.result);
+            $('#ping-result').append("\n");
         } else {
-            $('#result').append("error\n");
+            $('#ping-result').append("error\n");
         }
-        $('#result').scrollTop($('#result')[0].scrollHeight);
+        $('#ping-result').scrollTop($('#ping-result')[0].scrollHeight);
         webui.pingCount += 1;
         console.log(result);
     }
 
     sendPing = function() {
         if (webui.runPing) {
-            address = $('input[name = address]').val()
+            address = $('input[name = ping-address]').val()
             $.ajax({
                 url: "/ping?ip="+address,
                 dataType : 'json',
@@ -37,13 +35,78 @@ function webui() {
                     webui.parsePingResult(newData);
                 },
                 error: function() {
-                    $('#result').append("no response -- website unreachable?\n");
-                    $('#result').scrollTop($('#result')[0].scrollHeight); 
+                    $('#ping-result').append("no response -- website unreachable?\n");
+                    $('#ping-result').scrollTop($('#ping-result')[0].scrollHeight); 
                 }
             });
             setTimeout(webui.sendPing, 1000);
         }
     }
+
+    // Traceroute
+
+    onTraceStart = function() {
+        $('#trace-result').val("running...");
+        setTimeout(webui.sendTrace, 0);
+    }
+
+    parseTraceResult = function(result) {
+        if (result.returncode==0) {
+            $('#trace-result').val(result.stdout);
+        } else {
+            $('#trace-result').val(result.stderr);
+        }
+        console.log(result);
+    }
+
+    sendTrace = function() {
+        address = $('input[name = trace-address]').val()
+        $.ajax({
+            url: "/trace?ip="+address,
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                webui.parseTraceResult(newData);
+            },
+            error: function() {
+                $('#trace-result').val("no response -- website unreachable?");
+            }
+        });
+    }
+
+    // Dig
+
+    onDigStart = function() {
+        $('#dig-result').val("running...");
+        setTimeout(webui.sendDig, 0);
+    }
+
+    parseDigResult = function(result) {
+        if (result.returncode==0) {
+            $('#dig-result').val(result.stdout);
+        } else {
+            $('#dig-result').val(result.stderr);
+        }
+        console.log(result);
+    }
+
+    sendDig = function() {
+        hostname = $('input[name = dig-hostname]').val()
+        dnsserver = $('input[name = dig-dnsserver]').val()
+        $.ajax({
+            url: "/dig?hostname="+hostname+"&dnsserver="+dnsserver,
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                webui.parseDigResult(newData);
+            },
+            error: function() {
+                $('#dig-result').val("no response -- website unreachable?");
+            }
+        });
+    }       
+
+    // navigation
 
     onOpenTab = function(evt, tabName) {
         // Declare all variables
@@ -67,11 +130,19 @@ function webui() {
       }
 
     initButtons = function() {
-        $("#start").click(function() { webui.onStart(); });
-        $("#stop").click(function() { webui.onStop(); })
+        $("#ping-start").click(function() { webui.onPingStart(); });
+        $("#ping-stop").click(function() { webui.onPingStop(); })
+
+        $("#trace-start").click(function() { webui.onTraceStart(); });
+
+        $("#dig-start").click(function() { webui.onDigStart(); });
+
         $("#nav-ping").click(function(event) { webui.onOpenTab(event, "tab-ping"); })
         $("#nav-traceroute").click(function(event) { webui.onOpenTab(event, "tab-traceroute"); })
         $("#nav-dig").click(function(event) { webui.onOpenTab(event, "tab-dig"); })
+
+        // default tab
+        $("#nav-ping").click();
     }
 
     startup = function() {
