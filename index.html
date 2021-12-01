@@ -6,13 +6,29 @@
 
 <h1>Edge Monitoring Device</h2>
 
+<!-- Tab links -->
+<div class="tab">
+        <button class="tablinks" id="nav-ping">Ping</button>
+        <button class="tablinks" id="nav-traceroute">Traceroute</button>
+        <button class="tablinks" id="nav-dig">Dig</button>
+</div>
+<hr>
+
+<div id="tab-ping" class="tabcontent">
 Ping <input type="text" id="address" name="address" value="1.1.1.1">
 <button id="start">start</button>
 <button id="stop">stop</button>
-
 <br><br>
-
 <textarea id="result" name="result" rows="10" cols="80">
 </textarea>
+</div>
+
+<div id="tab-traceroute" class="tabcontent">
+    Traceroute
+</div>
+
+<div id="tab-dig" class="tabcontent">
+        Dig
+</div>
 
 </body>
