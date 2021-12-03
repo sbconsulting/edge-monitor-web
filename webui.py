@@ -10,6 +10,11 @@ def validateHostName(s):
         disallowed = re.compile("[^a-zA-Z\d\-]")
         return all(map(lambda x: len(x) and not disallowed.search(x), s.split(".")))
 
+
+def validateInterface(s):
+    return re.match("^[a-zA-Z0-9-_.]*$", s)
+
+
 @route("/")
 def index():
     return static_file("index.html", root=".")
@@ -28,7 +33,16 @@ def ping():
     if not validateHostName(ip):
         return {"stdout": "", "stderr": "invalid hostname or ip_address", "returncode": -2}
 
-    ping = subprocess.Popen(["ping", "-n", "-c", "1", "-w", "1", ip],
+    iface = request.query.interface or None
+    if iface and (not validateInterface(iface)):
+        return {"stdout": "", "stderr": "invalid interface", "returncode": -2}
+
+    args = ["ping", "-n", "-c", "1", "-w", "1", ip]
+    if iface:
+        args.append("-I")
+        args.append(iface)
+
+    ping = subprocess.Popen(args,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     stdout, stderr = ping.communicate()
@@ -51,12 +65,30 @@ def trace():
     if not validateHostName(ip):
         return {"stdout": "", "stderr": "invalid hostname or ip_address", "returncode": -2}
 
-    tr = subprocess.Popen(["traceroute", ip],
+    iface = request.query.interface or None
+    if iface and (not validateInterface(iface)):
+        return {"stdout": "", "stderr": "invalid interface", "returncode": -2}        
+
+    args = ["traceroute", ip]
+    if iface:
+        args.append("-i")
+        args.append(iface)
+    tr = subprocess.Popen(args,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     stdout, stderr = tr.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": tr.returncode}
 
+@route("/lte")
+def lte():
+    value = request.query.value or "1"
+    if value != "1":
+        value = "0"
+    process = subprocess.Popen(["bash", "-c", "echo \"AT+CFUN=%s\" > /dev/ttyACM0" % value],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
 
 @route("/dig")
 def dig():

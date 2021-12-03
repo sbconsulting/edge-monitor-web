@@ -12,12 +12,14 @@
         <button class="tablinks" id="nav-ping">Ping</button>
         <button class="tablinks" id="nav-traceroute">Traceroute</button>
         <button class="tablinks" id="nav-dig">Dig</button>
+        <button class="tablinks" id="nav-lte">LTE</button>
 </div>
 
 <br>
 
 <div id="tab-ping" class="tabcontent">
         Address <input type="text" id="ping-address" name="ping-address" value="1.1.1.1">
+        Interface <input type="text" id="ping-interface" name="ping-interface" value="">
         <button id="ping-start">start</button>
         <button id="ping-stop">stop</button>
         <br><br>
@@ -27,6 +29,7 @@
 
 <div id="tab-traceroute" class="tabcontent">
         Address <input type="text" id="trace-address" name="trace-address" value="1.1.1.1">
+        Interface <input type="text" id="trace-interface" name="trace-interface" value="">
         <button id="trace-start">trace</button>
         <br><br>
         <textarea id="trace-result" name="result" rows="20" cols="80">
@@ -39,6 +42,15 @@
         <button id="dig-start">Lookup</button>
         <br><br>
         <textarea id="dig-result" name="result" rows="20" cols="80">
+        </textarea>
+</div>
+
+<div id="tab-lte" class="tabcontent">
+        LTE
+        <button id="lte-on">On</button>
+        <button id="lte-off">Off</button>
+        <br><br>
+        <textarea id="lte-result" name="result" rows="20" cols="80">
         </textarea>
 </div>
 

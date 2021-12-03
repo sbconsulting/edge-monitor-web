@@ -27,8 +27,9 @@ function webui() {
     sendPing = function() {
         if (webui.runPing) {
             address = $('input[name = ping-address]').val()
+            iface = $('input[name = ping-interface]').val()
             $.ajax({
-                url: "/ping?ip="+address,
+                url: "/ping?ip="+address+"&interface="+iface,
                 dataType : 'json',
                 type : 'GET',
                 success: function(newData) {
@@ -61,8 +62,9 @@ function webui() {
 
     sendTrace = function() {
         address = $('input[name = trace-address]').val()
+        iface = $('input[name = trace-interface]').val()
         $.ajax({
-            url: "/trace?ip="+address,
+            url: "/trace?ip="+address+"&interface="+iface,
             dataType : 'json',
             type : 'GET',
             success: function(newData) {
@@ -104,7 +106,42 @@ function webui() {
                 $('#dig-result').val("no response -- website unreachable?");
             }
         });
-    }       
+    }
+
+    // LTE
+
+    onLTEOn = function() {
+        $('#lte-result').val("turning on...");
+        setTimeout(function() {webui.sendLTE(1)}, 0);
+    }
+
+    onLTEOff = function() {
+        $('#lte-result').val("turning off...");
+        setTimeout(function() {webui.sendLTE(0)}, 0);
+    }    
+
+    parseLTEResult = function(result) {
+        if (result.returncode==0) {
+            $('#lte-result').val(result.stdout);
+        } else {
+            $('#lte-result').val(result.stderr);
+        }
+        console.log(result);
+    }
+
+    sendLTE = function(val) {
+        $.ajax({
+            url: "/lte?value=" + val,
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                webui.parseLTEResult(newData);
+            },
+            error: function() {
+                $('#lte-result').val("no response -- website unreachable?");
+            }
+        });
+    }     
 
     // navigation
 
@@ -137,9 +174,13 @@ function webui() {
 
         $("#dig-start").click(function() { webui.onDigStart(); });
 
+        $("#lte-on").click(function() { webui.onLTEOn(); });
+        $("#lte-off").click(function() { webui.onLTEOff(); });
+
         $("#nav-ping").click(function(event) { webui.onOpenTab(event, "tab-ping"); })
         $("#nav-traceroute").click(function(event) { webui.onOpenTab(event, "tab-traceroute"); })
         $("#nav-dig").click(function(event) { webui.onOpenTab(event, "tab-dig"); })
+        $("#nav-lte").click(function(event) { webui.onOpenTab(event, "tab-lte"); })
 
         // default tab
         $("#nav-ping").click();
