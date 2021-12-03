@@ -108,6 +108,37 @@ function webui() {
         });
     }
 
+    // Ifconfig
+
+    onIfconfigStart = function() {
+        $('#ifconfig-result').val("running...");
+        setTimeout(webui.sendIfconfig, 0);
+    }
+
+    parseIfconfigResult = function(result) {
+        if (result.returncode==0) {
+            $('#ifconfig-result').val(result.stdout);
+        } else {
+            $('#ifconfig-result').val(result.stderr);
+        }
+        console.log(result);
+    }
+
+    sendIfconfig = function() {
+        iface = $('input[name = ifconfig-interface]').val()
+        $.ajax({
+            url: "/ifconfig?interface="+iface,
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                webui.parseIfconfigResult(newData);
+            },
+            error: function() {
+                $('#ifconfig-result').val("no response -- website unreachable?");
+            }
+        });
+    }    
+
     // LTE
 
     onLTEOn = function() {
@@ -141,7 +172,7 @@ function webui() {
                 $('#lte-result').val("no response -- website unreachable?");
             }
         });
-    }     
+    }
 
     // navigation
 
@@ -174,12 +205,15 @@ function webui() {
 
         $("#dig-start").click(function() { webui.onDigStart(); });
 
+        $("#ifconfig-start").click(function() { webui.onIfconfigStart(); });
+
         $("#lte-on").click(function() { webui.onLTEOn(); });
         $("#lte-off").click(function() { webui.onLTEOff(); });
 
         $("#nav-ping").click(function(event) { webui.onOpenTab(event, "tab-ping"); })
         $("#nav-traceroute").click(function(event) { webui.onOpenTab(event, "tab-traceroute"); })
         $("#nav-dig").click(function(event) { webui.onOpenTab(event, "tab-dig"); })
+        $("#nav-ifconfig").click(function(event) { webui.onOpenTab(event, "tab-ifconfig"); })
         $("#nav-lte").click(function(event) { webui.onOpenTab(event, "tab-lte"); })
 
         // default tab

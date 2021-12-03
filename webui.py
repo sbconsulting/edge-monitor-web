@@ -50,7 +50,7 @@ def ping():
         # Check if it's the packet loss message
         for line in stdout.splitlines():
             if "100% packet loss" in line.decode("utf-8"):
-                return {"stdout": stdout, "stderr": stderr, "returncode": 0, "result": "100% packet loss"}
+                return {"stdout": stdout, "stderr": stderr, "returncode": 0, "result": "packet loss"}
         
         # something else went wrong
         return {"stdout": stdout, "stderr": stderr, "returncode": ping.returncode}
@@ -85,8 +85,25 @@ def trace():
     stdout, stderr = tr.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": tr.returncode}
 
+
+@route("/ifconfig")
+def ifconfig():
+    iface = request.query.interface or None
+    if iface and (not validateInterface(iface)):
+        return {"stdout": "", "stderr": "invalid interface", "returncode": -2}        
+
+    args = ["ifconfig"]
+    if iface:
+        args.append(iface)
+    process = subprocess.Popen(args,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
 @route("/lte")
 def lte():
+    # resets a Sercomm LTE dongle
     value = request.query.value or "1"
     if value != "1":
         value = "0"
