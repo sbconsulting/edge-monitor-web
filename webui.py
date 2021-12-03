@@ -47,6 +47,12 @@ def ping():
                             stderr=subprocess.PIPE)
     stdout, stderr = ping.communicate()
     if ping.returncode != 0:
+        # Check if it's the packet loss message
+        for line in stdout.splitlines():
+            if "100% packet loss" in line.decode("utf-8"):
+                return {"stdout": stdout, "stderr": stderr, "returncode": 0, "result": "100% packet loss"}
+        
+        # something else went wrong
         return {"stdout": stdout, "stderr": stderr, "returncode": ping.returncode}
     else:
         lines = stdout.splitlines()
