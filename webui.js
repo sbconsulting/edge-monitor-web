@@ -197,6 +197,27 @@ function webui() {
         evt.currentTarget.className += " active";
       }
 
+    // info
+
+    sendInfoRequest = function() {
+        $.ajax({
+            url: "/info",
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $('#info-hostname').text(newData["hostname"]);
+                $('#info-uptime').text(newData["uptime"]);
+                console.log(newData);
+            },
+            error: function() {
+                $('#info-hostname').text("no response -- website unreachable?");
+            }
+        });
+        // Keep polling for info. Useful on errors to poll until we get a result.
+        // Also useful on success to ensure we're still connected.
+        setTimeout(webui.sendInfoRequest, 1000);
+    }      
+
     initButtons = function() {
         $("#ping-start").click(function() { webui.onPingStart(); });
         $("#ping-stop").click(function() { webui.onPingStop(); })
@@ -218,6 +239,9 @@ function webui() {
 
         // default tab
         $("#nav-ping").click();
+
+        // start requesting info
+        webui.sendInfoRequest();
     }
 
     startup = function() {

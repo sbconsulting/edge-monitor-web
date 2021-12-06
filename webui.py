@@ -1,6 +1,9 @@
 from bottle import route, run, static_file, request, subprocess
 from ipaddress import ip_address
+import datetime
 import re
+import os
+import socket
 
 def validateHostName(s):
     try:
@@ -13,6 +16,14 @@ def validateHostName(s):
 
 def validateInterface(s):
     return re.match("^[a-zA-Z0-9-_.]*$", s)
+
+
+def format_timedelta(td, pattern):
+    days = td.days
+    hours, remainder = divmod(td.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    d = {"d": days, "h": hours, "m": minutes, "s": seconds}
+    return pattern.format(**d)
 
 
 @route("/")
@@ -113,6 +124,7 @@ def lte():
     stdout, stderr = process.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
 
+
 @route("/dig")
 def dig():
     hostname = request.query.hostname or "www.google.com"
@@ -133,6 +145,16 @@ def dig():
                            stderr=subprocess.PIPE)
     stdout, stderr = dig.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": dig.returncode}
+
+
+@route("/info")
+def info():
+    uptime = os.times().elapsed
+    #uptime = str(datetime.timedelta(seconds=uptime))
+    uptime = datetime.timedelta(seconds=uptime)
+    uptime = format_timedelta(uptime, "{d} days {h}h {m}m {s}s")
+
+    return {"hostname": socket.gethostname(), "uptime": uptime, "returncode": 0}
 
 
 run(host='0.0.0.0', port=8087, debug=True)
