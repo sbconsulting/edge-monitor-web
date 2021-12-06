@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from bottle import route, run, static_file, request, subprocess
 from ipaddress import ip_address
 import datetime

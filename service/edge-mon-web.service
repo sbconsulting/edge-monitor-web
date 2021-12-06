@@ -1,0 +1,14 @@
+[Unit]
+Description=Edge Monitoring Web Page
+After=multi-user.target
+
+[Service]
+#Environment=CONFIG_FILE=/path/to/config.json
+WorkingDirectory=/home/pi/Aether/edge-monitor-web
+Type=simple
+ExecStart=/home/pi/Aether/edge-monitor-web/webui.py
+Restart=on-failure
+ExecStartPre=/bin/sleep 5
+
+[Install]
+WantedBy=multi-user.target
