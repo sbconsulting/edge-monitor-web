@@ -28,6 +28,34 @@ def format_timedelta(td, pattern):
     return pattern.format(**d)
 
 
+def get_service_list():
+    args = ["systemctl", "list-units", "--type=service", "--plain", "-a"]
+    tr = subprocess.Popen(args,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdout, stderr = tr.communicate(timeout=1)
+
+    if tr.returncode != 0:
+        return (tr.returncode, {})
+
+    services = {}
+    for line in stdout.splitlines():
+        parts = line.decode("utf-8").split(maxsplit=4)
+        if len(parts)!=5:
+            continue
+        parts = [part.strip() for part in parts]
+
+        services[parts[0]] = {
+            "name": parts[0],
+            "load": parts[1],
+            "active": parts[2],
+            "sub": parts[3],
+            "description": parts[4]
+        }
+
+    return (0, services)
+
+
 @route("/")
 def index():
     return static_file("index.html", root=".")
@@ -151,11 +179,31 @@ def dig():
 
 @route("/info")
 def info():
-    uptime = time.clock_gettime(time.CLOCK_BOOTTIME)
-    uptime = datetime.timedelta(seconds=uptime)
-    uptime = format_timedelta(uptime, "{d} days {h}h {m}m {s}s")
+    try:
+        uptime = time.clock_gettime(time.CLOCK_BOOTTIME)
+        uptime = datetime.timedelta(seconds=uptime)
+        uptime = format_timedelta(uptime, "{d} days {h}h {m}m {s}s")
+    except:
+        uptime = "exception"
 
-    return {"hostname": socket.gethostname(), "uptime": uptime, "returncode": 0}
+    try:
+        hostname = socket.gethostname()
+    except:
+        hostname = "exception"
+
+    try:
+        service_list = get_service_list()
+        if "edge-mon-agent.service" in service_list:
+            edge_mon_agent_service = service_list["edge-mon-agent.service"]
+        else:
+            edge_mon_agent_service = {"active": "not-present"}
+    except:
+        edge_mon_agent_service = {"active": "exception"}
+
+    return {"hostname": socket.gethostname(),
+            "uptime": uptime,
+            "returncode": 0,
+            "edge_mon_agent_service": edge_mon_agent_service}
 
 
 run(host='0.0.0.0', port=8087, debug=True)

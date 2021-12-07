@@ -207,6 +207,7 @@ function webui() {
             success: function(newData) {
                 $('#info-hostname').text(newData["hostname"]);
                 $('#info-uptime').text(newData["uptime"]);
+                $("#info-edge-mon-agent-service").text(newData["edge_mon_agent_service"]["active"] + "/" + newData["edge_mon_agent_service"]["sub"]);
                 console.log(newData);
             },
             error: function() {
