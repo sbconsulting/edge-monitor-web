@@ -217,7 +217,24 @@ function webui() {
         // Keep polling for info. Useful on errors to poll until we get a result.
         // Also useful on success to ensure we're still connected.
         setTimeout(webui.sendInfoRequest, 1000);
-    }      
+    }
+    
+    // info
+
+    sendSystemCtlRequest = function(command, service) {
+        $.ajax({
+            url: "/systemctl?command="+command+"&service="+service,
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $("#systemctl-result").val(newData["stdout"]+newData["stderr"])
+                console.log(newData);
+            },
+            error: function() {
+                $('#info-hostname').text("no response -- website unreachable?");
+            }
+        });
+    }       
 
     initButtons = function() {
         $("#ping-start").click(function() { webui.onPingStart(); });
@@ -232,11 +249,16 @@ function webui() {
         $("#lte-on").click(function() { webui.onLTEOn(); });
         $("#lte-off").click(function() { webui.onLTEOff(); });
 
+        $("#edge-mon-agent-start").click(function() { webui.sendSystemCtlRequest("start", "edge-mon-agent.service"); });
+        $("#edge-mon-agent-stop").click(function() { webui.sendSystemCtlRequest("stop", "edge-mon-agent.service"); });
+        $("#edge-mon-agent-restart").click(function() { webui.sendSystemCtlRequest("restart", "edge-mon-agent.service"); });
+
         $("#nav-ping").click(function(event) { webui.onOpenTab(event, "tab-ping"); })
         $("#nav-traceroute").click(function(event) { webui.onOpenTab(event, "tab-traceroute"); })
         $("#nav-dig").click(function(event) { webui.onOpenTab(event, "tab-dig"); })
         $("#nav-ifconfig").click(function(event) { webui.onOpenTab(event, "tab-ifconfig"); })
         $("#nav-lte").click(function(event) { webui.onOpenTab(event, "tab-lte"); })
+        $("#nav-services").click(function(event) { webui.onOpenTab(event, "tab-services"); })
 
         // default tab
         $("#nav-ping").click();

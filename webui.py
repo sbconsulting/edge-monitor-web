@@ -20,6 +20,10 @@ def validateInterface(s):
     return re.match("^[a-zA-Z0-9-_.]*$", s)
 
 
+def validateServiceName(s):
+    return re.match("^[a-zA-Z0-9-_.]*$", s)    
+
+
 def format_timedelta(td, pattern):
     days = td.days
     hours, remainder = divmod(td.seconds, 3600)
@@ -175,6 +179,25 @@ def dig():
                            stderr=subprocess.PIPE)
     stdout, stderr = dig.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": dig.returncode}
+
+
+@route("/systemctl")
+def systemctl():
+    service = request.query.service or "edge-mon-agent.service"
+    command = request.query.command or "restart"
+
+    if not validateServiceName(service):
+        return {"stdout": "", "stderr": "invalid service name", "returncode": -2}
+
+    if command not in ["start", "stop", "restart", "enable", "disable"]:
+        return {"stdout": "", "stderr": "invalid command name", "returncode": -2}
+
+    args = ["systemctl", command, service]
+    process = subprocess.Popen(args,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
 
 
 @route("/info")
