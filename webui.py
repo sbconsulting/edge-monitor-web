@@ -4,8 +4,8 @@ from bottle import route, run, static_file, request, subprocess
 from ipaddress import ip_address
 import datetime
 import re
-import os
 import socket
+import time
 
 def validateHostName(s):
     try:
@@ -151,8 +151,7 @@ def dig():
 
 @route("/info")
 def info():
-    uptime = os.times().elapsed
-    #uptime = str(datetime.timedelta(seconds=uptime))
+    uptime = time.clock_gettime(time.CLOCK_BOOTTIME)
     uptime = datetime.timedelta(seconds=uptime)
     uptime = format_timedelta(uptime, "{d} days {h}h {m}m {s}s")
 
