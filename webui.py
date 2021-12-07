@@ -192,7 +192,7 @@ def info():
         hostname = "exception"
 
     try:
-        service_list = get_service_list()
+        service_list = get_service_list()[1]
         if "edge-mon-agent.service" in service_list:
             edge_mon_agent_service = service_list["edge-mon-agent.service"]
         else:
@@ -206,4 +206,5 @@ def info():
             "edge_mon_agent_service": edge_mon_agent_service}
 
 
-run(host='0.0.0.0', port=8087, debug=True)
+if __name__ == "__main__":
+    run(host='0.0.0.0', port=8087, debug=True)
