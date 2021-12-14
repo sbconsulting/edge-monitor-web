@@ -4,6 +4,7 @@ from bottle import route, run, static_file, request, subprocess
 from ipaddress import ip_address
 import datetime
 import re
+import serial
 import socket
 import time
 from urllib import request as urllib_request
@@ -151,17 +152,25 @@ def ifconfig():
     stdout, stderr = process.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
 
+
 @route("/lte")
 def lte():
     # resets a Sercomm LTE dongle
     value = request.query.value or "1"
     if value != "1":
         value = "0"
-    process = subprocess.Popen(["bash", "-c", "echo \"AT+CFUN=%s\" > /dev/ttyACM0" % value],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
+    try:
+        serialPort = serial.Serial(
+            port="/dev/ttyACM0",
+            baudrate=115200,
+            timeout=1)
+        command = "AT+CFUN=%s" % value
+        serialPort.write(bytearray(command + "\r", "ascii"))
+        serialPort.close()
+        return {"stdout": "okay", "stderr": "", "returncode": -1}
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "returncode": -1}
 
 
 @route("/resetdongle")
