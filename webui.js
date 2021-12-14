@@ -189,7 +189,24 @@ function webui() {
                 $('#lte-result').val("no response -- website unreachable?");
             }
         });
-    }    
+    }
+    
+
+    sendReboot = function() {
+        $("#lte-result").val("rebooting...");
+        $.ajax({
+            url: "/reboot",
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $("#lte-result").val(newData["stdout"]+newData["stderr"])
+                console.log(newData);
+            },
+            error: function() {
+                $('#lte-result').val("no response -- website unreachable?");
+            }
+        });
+    }     
 
     // navigation
 
@@ -267,6 +284,7 @@ function webui() {
         $("#lte-on").click(function() { webui.onLTEOn(); });
         $("#lte-off").click(function() { webui.onLTEOff(); });
         $("#lte-usb-power-cycle").click(function() { webui.sendUsbPowerCycle(); });
+        $("#lte-reboot").click(function() { webui.sendReboot(); });
 
         $("#edge-mon-agent-start").click(function() { webui.sendSystemCtlRequest("start", "edge-mon-agent.service"); });
         $("#edge-mon-agent-stop").click(function() { webui.sendSystemCtlRequest("stop", "edge-mon-agent.service"); });

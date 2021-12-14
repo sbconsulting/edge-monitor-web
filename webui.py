@@ -175,6 +175,16 @@ def usbpowercycle():
         return {"stdout": "", "stderr": "no uhubctl", "returncode": -2}
 
 
+@route("/reboot")
+def reboot():
+    args = ["reboot"]
+    process = subprocess.Popen(args,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
+
 @route("/dig")
 def dig():
     hostname = request.query.hostname or "www.google.com"
