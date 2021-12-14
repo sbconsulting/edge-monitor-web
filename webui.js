@@ -206,7 +206,24 @@ function webui() {
                 $('#lte-result').val("no response -- website unreachable?");
             }
         });
-    }     
+    }
+
+
+    sendReset = function() {
+        $("#lte-result").val("resetting...");
+        $.ajax({
+            url: "/resetdongle",
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $("#lte-result").val(newData["stdout"]+newData["stderr"])
+                console.log(newData);
+            },
+            error: function() {
+                $('#lte-result').val("no response -- website unreachable?");
+            }
+        });
+    }      
 
     // navigation
 
@@ -284,7 +301,7 @@ function webui() {
         $("#lte-on").click(function() { webui.onLTEOn(); });
         $("#lte-off").click(function() { webui.onLTEOff(); });
         $("#lte-usb-power-cycle").click(function() { webui.sendUsbPowerCycle(); });
-        $("#lte-reboot").click(function() { webui.sendReboot(); });
+        $("#lte-reset").click(function() { webui.sendReset(); });
 
         $("#edge-mon-agent-start").click(function() { webui.sendSystemCtlRequest("start", "edge-mon-agent.service"); });
         $("#edge-mon-agent-stop").click(function() { webui.sendSystemCtlRequest("stop", "edge-mon-agent.service"); });

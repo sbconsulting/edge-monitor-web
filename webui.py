@@ -6,6 +6,8 @@ import datetime
 import re
 import socket
 import time
+from urllib import request as urllib_request
+import base64
 
 def validateHostName(s):
     try:
@@ -162,8 +164,28 @@ def lte():
     return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
 
 
+@route("/resetdongle")
+def resetDongle():
+    try:
+        httpRequest = urllib_request.Request("http://192.168.0.1:8080/cgi-bin/systemreboot.cgi?Command=Reset")
+        credentials = '%s:%s' % ("admin", "admin")
+        credentials = base64.b64encode(credentials.encode("ascii"))
+        httpRequest.add_header("Authorization", "Basic %s" % credentials.decode("ascii"))
+        httpResponse = urllib_request.urlopen(httpRequest, timeout=10)
+        sercommLteStatusXML = httpResponse.read()
+    except Exception as e:
+        return {"stdout": "", "stderr": str(e), "returncode": -1}
+
+    args = ["bash", "restore-routes.sh"]
+    process = subprocess.Popen(args,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
+
 @route("/usbpowercycle")
-def usbpowercycle():
+def usbpowercycle():    
     if (int(subprocess.call("which uhubctl", shell=True)) == 0):
         args = ["bash", "usb-power-cycle.sh"]
         process = subprocess.Popen(args,
@@ -172,7 +194,7 @@ def usbpowercycle():
         stdout, stderr = process.communicate()
         return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
     else:
-        return {"stdout": "", "stderr": "no uhubctl", "returncode": -2}
+        return {"stdout": "", "stderr": "no uhubctl", "returncode": -2}        
 
 
 @route("/reboot")
