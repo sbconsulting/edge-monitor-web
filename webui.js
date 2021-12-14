@@ -175,6 +175,7 @@ function webui() {
     }
 
     sendUsbPowerCycle = function() {
+        $("#lte-result").val("running...");
         $.ajax({
             url: "/usbpowercycle",
             dataType : 'json',
