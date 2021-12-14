@@ -165,17 +165,7 @@ def lte():
 @route("/usbpowercycle")
 def usbpowercycle():
     if (int(subprocess.call("which uhubctl", shell=True)) == 0):
-        args = ["/usr/sbin/uhubctl", "-a", "0", "-l", "2"]
-        process = subprocess.Popen(args,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        if process.returncode != 0:
-            return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
-
-        time.sleep(10)
-
-        args = ["/usr/sbin/uhubctl", "-a", "1", "-l", "2"]
+        args = ["bash", "usb-power-cycle.sh"]
         process = subprocess.Popen(args,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
