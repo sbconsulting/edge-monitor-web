@@ -173,7 +173,7 @@ function webui() {
                 $('#lte-result').val("no response -- website unreachable?");
             }
         });
-    }
+    }    
 
     sendUsbPowerCycle = function() {
         $("#lte-result").val("running...");
@@ -190,24 +190,6 @@ function webui() {
             }
         });
     }
-    
-
-    sendReboot = function() {
-        $("#lte-result").val("rebooting...");
-        $.ajax({
-            url: "/reboot",
-            dataType : 'json',
-            type : 'GET',
-            success: function(newData) {
-                $("#lte-result").val(newData["stdout"]+newData["stderr"])
-                console.log(newData);
-            },
-            error: function() {
-                $('#lte-result').val("no response -- website unreachable?");
-            }
-        });
-    }
-
 
     sendReset = function() {
         $("#lte-result").val("resetting...");
@@ -223,7 +205,24 @@ function webui() {
                 $('#lte-result').val("no response -- website unreachable?");
             }
         });
-    }      
+    }
+    
+    sendReboot = function() {
+        $("#power-result").val("rebooting...");
+        $.ajax({
+            url: "/reboot",
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $("#power-result").val(newData["stdout"]+newData["stderr"])
+                console.log(newData);
+            },
+            error: function() {
+                $('#power-result').val("no response -- website unreachable?");
+            }
+        });
+    }
+    
 
     // navigation
 
@@ -303,6 +302,8 @@ function webui() {
         $("#lte-usb-power-cycle").click(function() { webui.sendUsbPowerCycle(); });
         $("#lte-reset").click(function() { webui.sendReset(); });
 
+        $("#power-reboot").click(function() { webui.sendReboot(); });
+
         $("#edge-mon-agent-start").click(function() { webui.sendSystemCtlRequest("start", "edge-mon-agent.service"); });
         $("#edge-mon-agent-stop").click(function() { webui.sendSystemCtlRequest("stop", "edge-mon-agent.service"); });
         $("#edge-mon-agent-restart").click(function() { webui.sendSystemCtlRequest("restart", "edge-mon-agent.service"); });
@@ -313,6 +314,7 @@ function webui() {
         $("#nav-ifconfig").click(function(event) { webui.onOpenTab(event, "tab-ifconfig"); })
         $("#nav-lte").click(function(event) { webui.onOpenTab(event, "tab-lte"); })
         $("#nav-services").click(function(event) { webui.onOpenTab(event, "tab-services"); })
+        $("#nav-power").click(function(event) { webui.onOpenTab(event, "tab-power"); })
 
         // default tab
         $("#nav-ping").click();

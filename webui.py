@@ -176,6 +176,8 @@ def resetDongle():
     except Exception as e:
         return {"stdout": "", "stderr": str(e), "returncode": -1}
 
+    time.sleep(10)
+
     args = ["bash", "restore-routes.sh"]
     process = subprocess.Popen(args,
                                 stdout=subprocess.PIPE,

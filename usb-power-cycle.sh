@@ -4,12 +4,19 @@ sleep 5
 /usr/sbin/uhubctl -a 1 -l 2
 
 # wait for eth1 to appear
-ifconfig eth1 > /dev/null || sleep 5
-ifconfig eth1 > /dev/null || sleep 5
-ifconfig eth1 > /dev/null || sleep 5
-ifconfig eth1 > /dev/null || sleep 5
-ifconfig eth1 > /dev/null || sleep 5
-ifconfig eth1 > /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+ifconfig eth1 &> /dev/null || sleep 5
+
 
 # We need these routes
 route add default gw 192.168.0.1 eth1
