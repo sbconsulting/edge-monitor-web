@@ -34,13 +34,14 @@ function webui() {
                 type : 'GET',
                 success: function(newData) {
                     webui.parsePingResult(newData);
+                    setTimeout(webui.sendPing, 1000);
                 },
                 error: function() {
                     $('#ping-result').append("no response -- website unreachable?\n");
                     $('#ping-result').scrollTop($('#ping-result')[0].scrollHeight); 
+                    setTimeout(webui.sendPing, 1000);
                 }
             });
-            setTimeout(webui.sendPing, 1000);
         }
     }
 
