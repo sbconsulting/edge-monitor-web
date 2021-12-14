@@ -174,6 +174,21 @@ function webui() {
         });
     }
 
+    sendUsbPowerCycle = function() {
+        $.ajax({
+            url: "/usbpowercycle",
+            dataType : 'json',
+            type : 'GET',
+            success: function(newData) {
+                $("#lte-result").val(newData["stdout"]+newData["stderr"])
+                console.log(newData);
+            },
+            error: function() {
+                $('#lte-result').val("no response -- website unreachable?");
+            }
+        });
+    }    
+
     // navigation
 
     onOpenTab = function(evt, tabName) {
@@ -222,12 +237,13 @@ function webui() {
     // info
 
     sendSystemCtlRequest = function(command, service) {
+        $("#service-result").val("executing...");
         $.ajax({
             url: "/systemctl?command="+command+"&service="+service,
             dataType : 'json',
             type : 'GET',
             success: function(newData) {
-                $("#systemctl-result").val(newData["stdout"]+newData["stderr"])
+                $("#service-result").val(newData["stdout"]+newData["stderr"])
                 console.log(newData);
             },
             error: function() {
@@ -248,6 +264,7 @@ function webui() {
 
         $("#lte-on").click(function() { webui.onLTEOn(); });
         $("#lte-off").click(function() { webui.onLTEOff(); });
+        $("#lte-usb-power-cycle").click(function() { webui.sendUsbPowerCycle(); });
 
         $("#edge-mon-agent-start").click(function() { webui.sendSystemCtlRequest("start", "edge-mon-agent.service"); });
         $("#edge-mon-agent-stop").click(function() { webui.sendSystemCtlRequest("stop", "edge-mon-agent.service"); });

@@ -96,6 +96,9 @@ def ping():
         for line in stdout.splitlines():
             if "100% packet loss" in line.decode("utf-8"):
                 return {"stdout": stdout, "stderr": stderr, "returncode": 0, "result": "packet loss"}
+            elif "Network is unreachable" in line.decode("utf-8"):
+                # XXX this might be in stderr, not stdout
+                return {"stdout": stdout, "stderr": stderr, "returncode": 0, "result": "network is unreachable"}
         
         # something else went wrong
         return {"stdout": stdout, "stderr": stderr, "returncode": ping.returncode}
@@ -157,6 +160,29 @@ def lte():
                                 stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
+
+@route("/usbpowercycle")
+def usbpowercycle():
+    if (int(subprocess.call("which uhubctl",shell=True)) == 0):
+        args = ["/usr/sbin/uhubctl", "-a", "0", "-l", "2"]
+        process = subprocess.Popen(args,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+
+        time.sleep(10)
+
+        args = ["/usr/sbin/uhubctl", "-a", "1", "-l", "2"]
+        process = subprocess.Popen(args,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        return {"stdout": stdout, "stderr": stderr, "returncode": process.returncode}
+    else:
+        return {"stdout": "", "stderr": "no uhubctl", "returncode": -2}
 
 
 @route("/dig")
